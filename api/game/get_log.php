@@ -10,22 +10,34 @@
   $database = new Database();
   $db = $database->connect();
 
-  // Instantiate blog post object
+  // Instantiate game object
   $game = new Game($db);
 
   // Get ID
   $game->id = isset($_GET['id']) ? $_GET['id'] : die();
 
-  // Get game
-  $game->get_log();
+  // Get games
+  $games = $game->get_all();
+  $num = $games->rowCount();
 
-  // Create array
-  $game = array(
-    'id' => $game->id,
-    'armies' => $game->armies,
-    'game_units' => $game->game_units,
-    'game_status' => $game->game_status
-  );
+  if($num > 0) {
+    // Get game
+    $game->get_log();
 
-  // Make JSON
-  print_r(json_encode($game));
+    // Create array
+    $game = array(
+      'id' => $game->id,
+      'game_name' => $game->game_name,
+      'armies_left' => $game->armies_left,
+      'game_units' => $game->game_units,
+      'game_status' => $game->game_status
+    );
+
+    // Make JSON
+    print_r(json_encode($game));
+  } else {
+     echo json_encode(
+      array('message' => 'No games found')
+    );
+  }
+  

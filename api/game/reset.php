@@ -13,7 +13,7 @@
   $database = new Database();
   $db = $database->connect();
 
-  // Instantiate blog post object
+  // Instantiate army and game object
   $army = new Army($db);
   $game = new Game($db);
 
@@ -21,21 +21,14 @@
   $army->game_id = isset($_GET['id']) ? $_GET['id'] : die();
   $game->id = isset($_GET['id']) ? $_GET['id'] : die();
 
-  // Delete armies
-  if($army->delete()) {
-    // Reset game
-    if($game->reset()) {
-      echo json_encode(
-        array('message' => 'Game reseted')
-      );
-    } else {
-      echo json_encode(
-        array('message' => 'Game not reset')
-      );
-    }
+  // Reset game
+  if($game->reset() && $army->delete()) {
+    echo json_encode(
+      array('message' => 'Game successfuly reseted! Check game log!')
+    );
   } else {
     echo json_encode(
-      array('message' => 'Armies Not Deleted')
+      array('message' => 'Something went wrong! Game not reseted!')
     );
   }
 

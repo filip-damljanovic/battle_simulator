@@ -6,19 +6,19 @@
 
     // Game Properties
     public $id;
+    public $game_name;
     public $game_status;
-    // public $game_units;
 
     // Constructor with DB
     public function __construct($db) {
       $this->conn = $db;
     }
 
-    // Get Single Game
+    // Get single game
     public function get() {
       // Create query
       $query = 'SELECT 
-                  g.id, COUNT(a.game_id) AS armies, g.game_status 
+                  g.id, g.game_name, COUNT(a.game_id) AS armies, g.game_status 
                 FROM 
                   ' . $this->table . ' g
                 LEFT JOIN 
@@ -40,6 +40,7 @@
 
       // Set properties
       $this->id = $row['id'];
+      $this->game_name = $row['game_name'];
       $this->armies = $row['armies'];
       $this->game_status = $row['game_status'];
     }
@@ -48,7 +49,7 @@
     public function get_all() {
       // Create query
       $query = 'SELECT 
-                  g.id, SUM(a.units) AS game_units, g.game_status 
+                  g.id, g.game_name, SUM(a.units) AS game_units, g.game_status 
                 FROM 
                   ' . $this->table . ' g
                 LEFT JOIN 
@@ -65,11 +66,11 @@
       return $stmt;
     }
 
-    // Get Game Log
+    // Get fame log
     public function get_log() {
       // Create query
       $query = 'SELECT 
-                  g.id, COUNT(a.game_id) AS armies, SUM(a.units) AS game_units, g.game_status 
+                  g.id, g.game_name, g.game_status, COUNT(a.game_id) AS armies_left, SUM(a.units) AS game_units 
                 FROM 
                   ' . $this->table . ' g
                 LEFT JOIN 
@@ -91,44 +92,54 @@
 
       // Set properties
       $this->id = $row['id'];
-      $this->armies = $row['armies'];
+      $this->game_name = $row['game_name'];
+      $this->armies_left = $row['armies_left'];
       $this->game_units = $row['game_units'];
       $this->game_status = $row['game_status'];
     }
 
-    // Create Game
+    // Create game
     public function create() {
       // Create query
-      $query = 'INSERT INTO ' . $this->table . ' SET game_status = "offline"';
+      $query = 'INSERT INTO ' . $this->table . ' 
+                                SET  
+                                  game_name = :game_name, game_status = "not started"';
 
       // Prepare statement
       $stmt = $this->conn->prepare($query);
 
-      // Execute query
-      if($stmt->execute()) {
-        return true;
+      // Clean data
+      $this->game_name = htmlspecialchars(strip_tags($this->game_name));
+
+      // Bind data
+      $stmt->bindParam(':game_name', $this->game_name);
+
+      // Check if field is empty
+      if(!empty($this->game_name)) {
+        // Execute query
+        if($stmt->execute()) {
+          return true;
+        }
+      } else {
+        return false;
       }
-
-      // Print error if something goes wrong
-      printf("Error: %s.\n", $stmt->error);
-
-      return false;
     }
 
-    // Start Game
-    public function update() {
+    // Change game status
+    public function update_game_status($status) {
       // Create query
       $query = 'UPDATE ' . $this->table . '
                             SET 
-                              game_status = "online"
+                              game_status = :game_status
                             WHERE 
-                              id = ?';
+                              id = :id';
 
       // Prepare statement
       $stmt = $this->conn->prepare($query);
 
-      // Bind ID
-      $stmt->bindParam(1, $this->id);
+      // Bind data
+      $stmt->bindParam(':id', $this->id);
+      $stmt->bindParam(':game_status', $status);
 
       // Execute query
       if($stmt->execute()) {
@@ -146,7 +157,7 @@
       // Create query
       $query = 'UPDATE ' . $this->table . '
                             SET 
-                              game_status = "offline"
+                              game_status = "not started"
                             WHERE 
                               id = ?';
 

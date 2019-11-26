@@ -23,19 +23,19 @@
   if($num > 0) {
     // Game array
     $game_arr = array();
-    $game_arr['data'] = array();
 
     while($row = $result->fetch(PDO::FETCH_ASSOC)) {
       extract($row);
 
       $game_item = array(
         'id' => $id,
+        'game_name' => $game_name,
         'game_units' => $game_units,
         'game_status' => $game_status
       );
 
-      // Push to "data"
-      array_push($game_arr['data'], $game_item);
+      // Push to "games"
+      array_push($game_arr, $game_item);
     }
     // Turn to JSON & output
     echo json_encode($game_arr);
@@ -43,7 +43,7 @@
   } else {
     // No Games
     echo json_encode(
-      array('message' => 'No Games Found')
+      array(array('message' => 'No Games Found'))
     );
   }
 ?>

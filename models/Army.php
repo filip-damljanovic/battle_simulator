@@ -35,15 +35,15 @@
       $stmt->bindParam(':units', $this->units);
       $stmt->bindParam(':attack_strategy', $this->attack_strategy);
 
-      // Execute query
-      if($stmt->execute()) {
-        return true;
+      // Check if fields are empty
+      if(!empty($this->game_id) && !empty($this->name) && !empty($this->units) && !empty($this->attack_strategy)) {
+        // Execute query
+        if($stmt->execute()) {
+          return true;
+        }
+      } else {
+        return false;
       }
-
-      // Print error if something goes wrong
-      printf("Error: %s.\n", $stmt->error);
-
-      return false;
     }
 
     // Reset Game - Delete Armies From A Game
@@ -97,7 +97,7 @@
     }
 
     // Get attacker
-    public function get_attacker($attacker_id) {
+    public function get_attacker($attacker_id, $game_id) {
       // Create query
       $query = 'SELECT 
                   *
@@ -105,6 +105,8 @@
                   ' . $this->table . '
                 WHERE
                   id = :id
+                AND
+                  game_id = :game_id
                 LIMIT 0,1';
 
       // Prepare statement
@@ -112,6 +114,7 @@
 
       // Bind IDs
       $stmt->bindParam(':id', $attacker_id);
+      $stmt->bindParam(':game_id', $game_id);
 
       // Execute query
       $stmt->execute();
@@ -127,7 +130,7 @@
     }
 
     // Get random defender
-    public function get_random_defender($attacker_id) {
+    public function get_random_defender($attacker_id, $game_id) {
       // Create query
       $query = 'SELECT 
                   *
@@ -135,6 +138,8 @@
                   ' . $this->table . '
                 WHERE
                   id <> :id
+                AND 
+                  game_id = :game_id
                 ORDER BY 
                   RAND()
                 LIMIT 1';
@@ -144,6 +149,7 @@
 
       // Bind IDs
       $stmt->bindParam(':id', $attacker_id);
+      $stmt->bindParam(':game_id', $game_id);
 
       // Execute query
       $stmt->execute();
@@ -159,7 +165,7 @@
     }
 
     // Get weakest defender
-    public function get_weakest_defender($attacker_id) {
+    public function get_weakest_defender($attacker_id, $game_id) {
       // Create query
       $query = 'SELECT 
                   *
@@ -167,6 +173,8 @@
                   ' . $this->table . '
                 WHERE
                   id <> :id
+                AND 
+                  game_id = :game_id
                 AND
                   units = (SELECT MIN(units) FROM ' . $this->table . ' WHERE id <> :id)';
 
@@ -175,6 +183,7 @@
 
       // Bind IDs
       $stmt->bindParam(':id', $attacker_id);
+      $stmt->bindParam(':game_id', $game_id);
 
       // Execute query
       $stmt->execute();
@@ -198,6 +207,8 @@
                   ' . $this->table . '
                 WHERE
                   id <> :id
+                AND 
+                  game_id = :game_id
                 AND
                   units = (SELECT MAX(units) FROM ' . $this->table . ' WHERE id <> :id)';
 
@@ -206,6 +217,7 @@
 
       // Bind IDs
       $stmt->bindParam(':id', $attacker_id);
+      $stmt->bindParam(':game_id', $game_id);
 
       // Execute query
       $stmt->execute();
@@ -295,6 +307,50 @@
         return true;
       } else {
           return false;
+      }
+    }
+
+    // Run round of attacks
+    function round_of_attacks($armies, $game, $attacker, $defender) {
+      foreach($armies as $key => $army) {
+        // Start game
+        $status = "in progress";
+        $game->update_game_status($status);
+        // Get attacker
+        $attacker->get_attacker($army['id'], $game->id);
+
+        // Get defender based on attack strategies
+        if($attacker->attack_strategy == 'random') {
+          $defender->get_random_defender($attacker->id, $game->id);
+        } elseif($attacker->attack_strategy == 'weakest') {
+          $defender->get_weakest_defender($attacker->id, $game->id);
+        } elseif($attacker->attack_strategy == 'strongest') {
+          $defender->get_strongest_defender($attacker->id, $game->id);
+        }
+
+        // Run attack
+        $this->runAttack($attacker, $defender);
+
+        // Get all armies for a game after successful attack
+        $armies = $this->get_all($game->id);
+        $num = $armies->rowCount();
+      }
+
+      if($num == 1) {
+        // Finish game
+        $status = "finished";
+        $game->update_game_status($status);
+        // Get winner
+        $row = $armies->fetch(PDO::FETCH_ASSOC);
+        $last_standing_army = $row['name'];
+
+        echo json_encode(
+          array('message' => $game->game_name . ' over. ' . $last_standing_army . ' wins the battle! Reset this game!')
+        );
+      } else {
+        echo json_encode(
+          array('message' => 'Attacks completed! Run attacks until there is a winner. Check game log!')
+        );
       }
     }
 

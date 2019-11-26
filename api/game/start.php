@@ -29,43 +29,14 @@
   $armies = $armyInstance->get_all($game->id);
   $num = $armies->rowCount();
 
-  // Run attacks
-  if($num > 1) {
-    foreach($armies as $key => $army) {
-      // Get attacker
-      $attacker->get_attacker($army['id']);
-
-      // Random strategy
-      if($attacker->attack_strategy == 'random') {
-        // Get Random Defender
-        $defender->get_random_defender($attacker->id);
-      } elseif($attacker->attack_strategy == 'weakest') {
-        // Get Strongest Defender
-        $defender->get_weakest_defender($attacker->id);
-      } elseif($attacker->attack_strategy == 'strongest') {
-        // Get Weakest Defender
-        $defender->get_strongest_defender($attacker->id);
-      }
-
-      // Run attack
-      if($armyInstance->runAttack($attacker, $defender)) {
-        echo json_encode(
-          array('message' => 'Attack Successful')
-        );
-      }
-      else {
-        echo json_encode(
-          array('message' => 'Attack not successful')
-        );
-      }
-    }
+  // Check if there are enough armies to start a game
+  if($num < 10 && ($game->game_status == 'in progress' || $game->game_status == 'finished')) {
+    $attacker->round_of_attacks($armies, $game, $attacker, $defender);
+  } elseif($num >= 10) {
+    $attacker->round_of_attacks($armies, $game, $attacker, $defender);
   } else {
-    // Get winner
-    $row = $armies->fetch(PDO::FETCH_ASSOC);
-    $last_standing_army = $row['name'];
-
-    echo json_encode(
-      array('message' =>  'Game over. ' . $last_standing_army . ' wins!')
+     echo json_encode(
+      array('message' =>  'Not enough armies to start the battle.')
     );
   }
 ?>
