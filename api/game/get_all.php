@@ -13,7 +13,7 @@
   // Instantiate game object
   $game = new Game($db);
 
-  // Game read query
+  // Get games
   $result = $game->get_all();
   
   // Get row count

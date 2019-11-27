@@ -32,10 +32,25 @@
     body {
       text-align: center;
       font-family: "Helvetica", sans-serif;
+      background-image: url(img/battle_background.jpg);
+      background-repeat: no-repeat;
+      background-size: cover;
     }
     h1 {
       font-size: 2em;
       font-weight: bold;
+      color: bisque;
+    }
+    label {
+      color: bisque;
+    }
+    input, select {
+      background: bisque;
+      border: none;
+      box-shadow: none;
+      padding: 5px;
+      margin-top: 5px;
+      border-radius: 5px;
     }
     .box {
       border-radius: 5px;
@@ -43,15 +58,26 @@
       padding: 20px 5px;
     }
     button {
-      color: white;
-      background-color: #4791d0;
+      color: bisque;
+      background-color: brown;
       border-radius: 5px;
-      border: 1px solid #4791d0;
+      border: 1px solid brown;
       padding: 5px 10px 8px 10px;
     }
     button:hover {
+      cursor: pointer;
       background-color: #0F5897;
       border: 1px solid #0F5897;
+    }
+
+    @media(max-width: 576px) {
+      .container {
+        flex-direction: column;
+      }
+
+      .get, .post {
+        width: 100% !important;
+      }
     }
   </style>
 </head>
