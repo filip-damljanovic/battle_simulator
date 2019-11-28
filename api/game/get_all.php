@@ -28,10 +28,10 @@
       extract($row);
 
       $game_item = array(
-        'id' => $id,
-        'game_name' => $game_name,
-        'game_units' => $game_units,
-        'game_status' => $game_status
+        'Game ID' => $id,
+        'Name' => $game_name,
+        'Total units in the game' => $game_units,
+        'Status' => $game_status
       );
 
       // Push to "games"

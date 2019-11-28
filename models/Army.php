@@ -199,7 +199,7 @@
     }
 
     // Get strongest defender
-    public function get_strongest_defender($attacker_id) {
+    public function get_strongest_defender($attacker_id, $game_id) {
       // Create query
       $query = 'SELECT 
                   *
@@ -331,11 +331,12 @@
         // Run attack
         $this->runAttack($attacker, $defender);
 
-        // Get all armies for a game after successful attack
+        // Check how many armies are left
         $armies = $this->get_all($game->id);
         $num = $armies->rowCount();
       }
 
+      // Check if the game is over
       if($num == 1) {
         // Finish game
         $status = "finished";

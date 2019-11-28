@@ -27,9 +27,11 @@
   // Get row count
   $num = $result->rowCount();
 
-  // Check if teheres any games
-  if($num > 0) {
-
+  if($game->id == "Select game ID") {
+    echo json_encode(
+      array('message' =>  'Select game ID!')
+    );
+  } elseif($num > 0) {
     // Reset game
     if($game->reset() && $army->delete()) {
       echo json_encode(

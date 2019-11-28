@@ -5,6 +5,7 @@
 
   include_once '../../config/Database.php';
   include_once '../../models/Game.php';
+  include_once '../../models/Army.php';
 
   // Instantiate DB & connect
   $database = new Database();
@@ -12,6 +13,7 @@
 
   // Instantiate game object
   $game = new Game($db);
+  $armyInstance = new Army($db);
 
   // Get ID
   $game->id = isset($_GET['id']) ? $_GET['id'] : die();
@@ -20,17 +22,34 @@
   $games = $game->get_all();
   $num = $games->rowCount();
 
-  if($num > 0) {
+  // Get armies
+  $armies = $armyInstance->get_all($game->id);
+  $armies_arr = array();
+
+  // Create armies array
+  foreach($armies as $key => $army) {
+    $army_arr = array(
+      'name' => $army['name'],
+      'units' => $army['units'],
+      'attack_strategy' => $army['attack_strategy']
+    );
+    array_push($armies_arr, $army_arr);
+  }
+
+  if($game->id == "Select game ID") {
+    echo json_encode(
+      array('message' =>  'Select game ID!')
+    );
+  } elseif($num > 0) {
     // Get game
     $game->get_log();
 
     // Create array
     $game = array(
-      'id' => $game->id,
-      'game_name' => $game->game_name,
-      'armies_left' => $game->armies_left,
-      'game_units' => $game->game_units,
-      'game_status' => $game->game_status
+      'Name' => $game->game_name,
+      'armies_left' => $armies_arr,
+      'Total army units in the game' => $game->game_units,
+      'Status' => $game->game_status
     );
 
     // Make JSON
@@ -40,4 +59,5 @@
       array('message' => 'No games found')
     );
   }
-  
+
+?>

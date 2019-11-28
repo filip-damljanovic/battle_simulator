@@ -31,7 +31,7 @@
   <style>
     body {
       text-align: center;
-      font-family: "Helvetica", sans-serif;
+      font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
       background-image: url(img/battle_background.jpg);
       background-repeat: no-repeat;
       background-size: cover;
@@ -40,6 +40,9 @@
       font-size: 2em;
       font-weight: bold;
       color: bisque;
+    }
+    .message h1 {
+      color: brown;
     }
     label {
       color: bisque;
@@ -55,7 +58,8 @@
     .box {
       border-radius: 5px;
       background-color: #eee;
-      padding: 20px 5px;
+      padding: 20px;
+      padding-bottom: 50px;
     }
     button {
       color: bisque;
@@ -69,12 +73,35 @@
       background-color: #0F5897;
       border: 1px solid #0F5897;
     }
-
+    .game {
+      font-size: 18px;
+    }
+    .game strong {
+      color: brown;
+    }
+    table {
+      width: 100%;
+    }
+    table td, table th {
+      border: 1px solid #ddd;
+      padding: 8px;
+    }
+    table tr:nth-child(even){background-color: #f4f4f4;}
+    table tr:hover {background-color: #ddd;}
+    table th {
+      padding-top: 12px;
+      padding-bottom: 12px;
+      background-color: brown;
+      color: white;
+    }
+    ::placeholder {
+      color: brown;
+      font-style: italic;
+    }
     @media(max-width: 576px) {
       .container {
         flex-direction: column;
       }
-
       .get, .post {
         width: 100% !important;
       }
@@ -105,11 +132,12 @@
         <!-- Game ID input -->
         <label for="game_id">Select game ID</label><br>
         <select style="margin-bottom: 10px" name="game_id" id="game_id_2">
-           <?php
-            // Add game IDs to select options
-            foreach($game_ids as $key => $game_id) {
-              echo "<option selected value='$game_id'>$game_id</option>";
-            }
+          <option default>Select game ID</option>
+          <?php
+          // Add game IDs to select options
+          foreach($game_ids as $key => $game_id) {
+            echo "<option value='$game_id'>$game_id</option>";
+          }
           ?>
         </select><br>
         <!-- Army name input -->
@@ -118,6 +146,7 @@
         <!-- Army units input -->
         <label for="units">Units</label><br>
         <select style="margin-bottom: 10px" name="units">
+          <option default>Select number of units</option>
           <option value="80">80</option>
           <option value="81">81</option>
           <option value="82">82</option>
@@ -143,6 +172,7 @@
         <!-- Attack strategy input -->
         <label for="attack_strategy">Attack Strategy</label><br>
         <select style="margin-bottom: 10px" name="attack_strategy">
+          <option default>Select attack strategy</option>
           <option value="random">random</option>
           <option value="strongest">strongest</option>
           <option value="weakest">weakest</option>
@@ -157,10 +187,11 @@
       <h1>Start a game</h1>
       <label for="id">Select game ID</label><br>
       <select style="margin-bottom: 10px" name="id" id="game_id_3">
+        <option default>Select game ID</option>
         <?php
           // Add game IDs to select options
           foreach($game_ids as $key => $game_id) {
-            echo "<option selected value='$game_id'>$game_id</option>";
+            echo "<option value='$game_id'>$game_id</option>";
           }
         ?>
       </select><br>
@@ -173,10 +204,11 @@
       <h1>Reset a game</h1>
       <label for="id">Select game ID</label><br>
       <select style="margin-bottom: 10px" name="id" id="game_id_4">
+        <option default>Select game ID</option>
         <?php
           // Add game IDs to select options
           foreach($game_ids as $key => $game_id) {
-            echo "<option selected value='$game_id'>$game_id</option>";
+            echo "<option value='$game_id'>$game_id</option>";
           }
         ?>
       </select><br>
@@ -188,25 +220,26 @@
   <div style="width:50%;" class="get">
     <!-- GET EXISTING GAMES -->
     <div>
-      <h1>Get Games</h1>
-      <p class="message box">Get Existing Games</p>
-      <p><button id="get_games">Get Games</button></p>
+      <h1>Get games</h1>
+      <p class="message box">Get existing games</p>
+      <p><button id="get_games">Get games</button></p>
     </div>
 
     <!-- GET GAME LOG -->
     <div>
-      <h1>Get Game Log</h1>
+      <h1>Get game log</h1>
       <label for="id">Select game ID</label><br>
       <select style="margin-bottom: 10px" name="id" id="game_id_1">
+        <option default>Select game ID</option>
         <?php
           // Add game IDs to select options
           foreach($game_ids as $key => $game_id) {
-            echo "<option selected value='$game_id'>$game_id</option>";
+            echo "<option value='$game_id'>$game_id</option>";
           }
         ?>
       </select><br>
-      <p class="message box">Get Game Log For Selected ID</p>
-      <p><button id="get_game_log">Get Game Log</button></p>
+      <p class="message box">Get game log for selected ID</p>
+      <p><button id="get_game_log">Get game log</button></p>
     </div>
   </div>
 </div>

@@ -36,7 +36,11 @@
     $army->attack_strategy = $data->attack_strategy;
 
     // Create army
-    if($army->create()) {
+    if($data->units == "Select number of units" || $data->attack_strategy == "Select attack strategy" || $data->game_id == "Select game ID") {
+      echo json_encode(
+        array('message' => 'Army not created, fill out all the fields!')
+      );
+    } elseif($army->create()) {
       // Get game for created army
       $game->id = $army->game_id;
       $game->get();

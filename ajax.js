@@ -15,11 +15,15 @@ document.addEventListener('DOMContentLoaded', function () {
       json.forEach(function (val) {
         var keys = Object.keys(val);
 
-        html += "<div class = 'cat'>";
-        keys.forEach(function (key) {
-          html += "<strong>" + key + "</strong>: " + val[key] + "<br>";
-        });
-        html += "</div><br>";
+        if(keys.length > 1) {
+          html += "<div class='game'>";
+          keys.forEach(function (key) {
+            html += "<strong>" + key + "</strong>: " + val[key] + "<br>";
+          });
+          html += "</div><br>";
+        } else {
+          html = "<p>No games found!</p>";
+        }
       });
 
       //append in message class
@@ -40,17 +44,52 @@ document.addEventListener('DOMContentLoaded', function () {
 
     req.onload = function () {
       var json = JSON.parse(req.responseText);
-      var html =  "";
-
-      //display data
+    
+      // display game data
       var keys = Object.keys(json);
 
-      html += "<div class = 'cat'>";
-      keys.forEach(function (key) {
-        html += "<strong>" + key + "</strong>: " + json[key] + "<br>";
-      });
-      html += "</div><br>";
+      if(keys.length > 1) {
+        var html = "<h1>Game info</h1>";
+        html += "<div class='game'>";
 
+        keys.forEach(function (key) {
+          if (key == 'armies_left') {
+            return;
+          }
+          html += "<strong>" + key + "</strong>: " + json[key] + "<br>";
+        });
+        html += "</div><br>";
+
+        // display armies left in the game and their info
+        html += "<h1>Armies left in the game</h1>";
+
+        // Show data as a table
+        html += "<table>";
+        // Get table header
+        html += "<tr>";
+        html += "<th>Name</th>";
+        html += "<th>Units Left</th>";
+        html += "<th>Attack Strategy</th>";
+        html += "</tr>"
+
+        armies = json['armies_left']; 
+
+        //loop and display table rows
+        armies.forEach(function (val) {
+          var keys = Object.keys(val);
+
+          html += "<tr>";
+          keys.forEach(function (key) {
+            html += "<td>" + val[key] + "</td>";
+          });
+          html += "</tr>";
+        });
+
+        html += "</table>";
+      }
+      else {
+        html = "<p>Select game ID!</p>";
+      }
       //append in message class
       document.getElementsByClassName('message')[1].innerHTML = html;
     }
@@ -94,10 +133,10 @@ $(document).ready(function () {
           var game_id = response.id;
 
           // Add newly created ID to options
-          $("#game_id_1").append("<option selected value='" + game_id + "'>" + game_id + "</option>");
-          $("#game_id_2").append("<option selected value='" + game_id + "'>" + game_id + "</option>");
-          $("#game_id_3").append("<option selected value='" + game_id + "'>" + game_id + "</option>");
-          $("#game_id_4").append("<option selected value='" + game_id + "'>" + game_id + "</option>");
+          $("#game_id_1").append("<option value='" + game_id + "'>" + game_id + "</option>");
+          $("#game_id_2").append("<option value='" + game_id + "'>" + game_id + "</option>");
+          $("#game_id_3").append("<option value='" + game_id + "'>" + game_id + "</option>");
+          $("#game_id_4").append("<option value='" + game_id + "'>" + game_id + "</option>");
         }
         alert(response.message);
       },
@@ -166,7 +205,6 @@ $(document).ready(function () {
       ContentType: "application/json",
 
       success: function (response) {
-        // Update game log imediately
         var $id = $('#game_id_1')[0].value;
 
         var req;
@@ -176,17 +214,52 @@ $(document).ready(function () {
 
         req.onload = function () {
           var json = JSON.parse(req.responseText);
-          var html = "";
 
-          //display data
+          // display game data
           var keys = Object.keys(json);
 
-          html += "<div class = 'cat'>";
-          keys.forEach(function (key) {
-            html += "<strong>" + key + "</strong>: " + json[key] + "<br>";
-          });
-          html += "</div><br>";
+          if (keys.length > 1) {
+            var html = "<h1>Game info</h1>";
+            html += "<div class='game'>";
 
+            keys.forEach(function (key) {
+              if (key == 'armies_left') {
+                return;
+              }
+              html += "<strong>" + key + "</strong>: " + json[key] + "<br>";
+            });
+            html += "</div><br>";
+
+            // display armies left in the game and their info
+            html += "<h1>Armies left in the game</h1>";
+
+            // Show data as a table
+            html += "<table>";
+            // Get table header
+            html += "<tr>";
+            html += "<th>Name</th>";
+            html += "<th>Units Left</th>";
+            html += "<th>Attack Strategy</th>";
+            html += "</tr>"
+
+            armies = json['armies_left'];
+
+            //loop and display table rows
+            armies.forEach(function (val) {
+              var keys = Object.keys(val);
+
+              html += "<tr>";
+              keys.forEach(function (key) {
+                html += "<td>" + val[key] + "</td>";
+              });
+              html += "</tr>";
+            });
+
+            html += "</table>";
+          }
+          else {
+            html = "<p>Select game ID!</p>";
+          }
           //append in message class
           document.getElementsByClassName('message')[1].innerHTML = html;
         }
@@ -231,7 +304,7 @@ $(document).ready(function () {
           //display data
           var keys = Object.keys(json);
 
-          html += "<div class = 'cat'>";
+          html += "<div class='game'>";
           keys.forEach(function (key) {
             html += "<strong>" + key + "</strong>: " + json[key] + "<br>";
           });

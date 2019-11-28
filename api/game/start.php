@@ -29,8 +29,13 @@
   $armies = $armyInstance->get_all($game->id);
   $num = $armies->rowCount();
 
-  if($num > 0) {
-    // Check if there are enough armies to start a game
+  // Start game if conditions are met
+  if($game->id == "Select game ID") {
+    echo json_encode(
+      array('message' =>  'Select game ID!')
+    );
+  } elseif($num > 0) {
+    // There can be less than 10 armies if the game is in progress or finished
     if($num < 10 && ($game->game_status == 'in progress' || $game->game_status == 'finished')) {
       $attacker->round_of_attacks($armies, $game, $attacker, $defender);
     } elseif($num >= 10) {
@@ -42,7 +47,7 @@
     }
   } else {
     echo json_encode(
-      array('message' =>  'No games found!')
+      array('message' =>  'No armies in the game!')
     );
   }
   
