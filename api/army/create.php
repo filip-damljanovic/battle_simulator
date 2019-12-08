@@ -35,16 +35,25 @@
     $army->units = $data->units;
     $army->attack_strategy = $data->attack_strategy;
 
+    // Get game for army
+    $game->id = $army->game_id;
+    $game->get();
+
     // Create army
     if($data->units == "Select number of units" || $data->attack_strategy == "Select attack strategy" || $data->game_id == "Select game ID") {
       echo json_encode(
         array('message' => 'Army not created, fill out all the fields!')
       );
-    } elseif($army->create()) {
-      // Get game for created army
-      $game->id = $army->game_id;
-      $game->get();
+    } elseif($game->game_status == 'in progress') {
+      // Add new armies to the beginning in between turns
+      $army->get_min_id_army($game->id);
+      $army->increment_army_id($army->id);
+      $army->create_army_for_game_in_progress($army->id);
 
+      echo json_encode(
+        array('message' => 'Army added to ' . $game->game_name . ' successfuly!')
+      );
+    } elseif($army->create()) {
       echo json_encode(
         array('message' => 'Army added to ' . $game->game_name . ' successfuly!')
       );

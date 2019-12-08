@@ -46,6 +46,95 @@
       }
     }
 
+    // Get Army with min ID for a game
+    public function get_min_id_army($game_id) {
+       // Create query
+      $query = 'SELECT 
+                  * 
+                FROM 
+                  ' . $this->table . '
+                WHERE
+                  game_id = :game_id
+                AND
+                 id = (SELECT MIN(id) FROM ' . $this->table . ' WHERE game_id = :game_id)';
+      
+      // Prepare statement
+      $stmt = $this->conn->prepare($query);
+
+      // Clean data
+      $game_id = htmlspecialchars(strip_tags($game_id));
+
+      // Bind data
+      $stmt->bindParam(':game_id', $game_id);
+
+      // Execute query
+      $stmt->execute();
+
+      $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+      // Set properties
+      $this->id = $row['id'];
+    }
+
+    // Increment every army ID
+    public function increment_army_id($id) {
+      // Create query
+      $query = 'UPDATE ' . $this->table . '
+                            SET
+                              id = id + 1
+                            WHERE
+                              id >= :id
+                            ORDER BY
+                              id DESC';
+      
+      // Prepare statement
+      $stmt = $this->conn->prepare($query);
+
+      // Clean data
+      $game_id = htmlspecialchars(strip_tags($id));
+
+      // Bind data
+      $stmt->bindParam(':id', $id);
+
+      // Execute query
+      $stmt->execute();
+
+      return $stmt;
+    }
+
+    // Create Army for game in progress
+    public function create_army_for_game_in_progress($id) {
+      // Create query
+      $query = 'INSERT INTO ' . $this->table . ' SET id = :id , game_id = :game_id, name= :name, units = :units, attack_strategy = :attack_strategy';
+
+      // Prepare statement
+      $stmt = $this->conn->prepare($query);
+
+      // Clean data
+      $this->id = htmlspecialchars(strip_tags($id));
+      $this->game_id = htmlspecialchars(strip_tags($this->game_id));
+      $this->name = htmlspecialchars(strip_tags($this->name));
+      $this->units = htmlspecialchars(strip_tags($this->units));
+      $this->attack_strategy = htmlspecialchars(strip_tags($this->attack_strategy));
+
+      // Bind data
+      $stmt->bindParam(':id', $id);
+      $stmt->bindParam(':game_id', $this->game_id);
+      $stmt->bindParam(':name', $this->name);
+      $stmt->bindParam(':units', $this->units);
+      $stmt->bindParam(':attack_strategy', $this->attack_strategy);
+
+      // Check if fields are empty
+      if(!empty($this->game_id) && !empty($this->name) && !empty($this->units) && !empty($this->attack_strategy)) {
+        // Execute query
+        if($stmt->execute()) {
+          return true;
+        }
+      } else {
+        return false;
+      }
+    }
+
     // Reset Game - Delete Armies From A Game
     public function delete() {
       // Create query
@@ -168,15 +257,16 @@
     public function get_weakest_defender($attacker_id, $game_id) {
       // Create query
       $query = 'SELECT 
-                  *
+                  * 
                 FROM 
                   ' . $this->table . '
-                WHERE
-                  id <> :id
+                WHERE 
+                  id <> :id 
                 AND 
-                  game_id = :game_id
-                AND
-                  units = (SELECT MIN(units) FROM ' . $this->table . ' WHERE id <> :id)';
+                  game_id = :game_id 
+                AND 
+                  units = (SELECT MIN(units) FROM ' . $this->table . ' WHERE id <> :id AND game_id = :game_id)
+                LIMIT 1';
 
       // Prepare statement
       $stmt = $this->conn->prepare($query);
@@ -202,15 +292,16 @@
     public function get_strongest_defender($attacker_id, $game_id) {
       // Create query
       $query = 'SELECT 
-                  *
+                  * 
                 FROM 
                   ' . $this->table . '
-                WHERE
-                  id <> :id
+                WHERE 
+                  id <> :id 
                 AND 
-                  game_id = :game_id
-                AND
-                  units = (SELECT MAX(units) FROM ' . $this->table . ' WHERE id <> :id)';
+                  game_id = :game_id 
+                AND 
+                  units = (SELECT MAX(units) FROM ' . $this->table . ' WHERE id <> :id AND game_id = :game_id)
+                LIMIT 1';
 
       // Prepare statement
       $stmt = $this->conn->prepare($query);

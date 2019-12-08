@@ -22,33 +22,34 @@
   // Get ID
   $game->id = isset($_GET['id']) ? $_GET['id'] : die();
 
-  // Get Game
-  $game->get();
-
-  // Get all armies for a game
-  $armies = $armyInstance->get_all($game->id);
-  $num = $armies->rowCount();
-
-  // Start game if conditions are met
-  if($game->id == "Select game ID") {
+  if($_GET['id'] == "Select game ID") {
     echo json_encode(
       array('message' =>  'Select game ID!')
     );
-  } elseif($num > 0) {
-    // There can be less than 10 armies if the game is in progress or finished
-    if($num < 10 && ($game->game_status == 'in progress' || $game->game_status == 'finished')) {
-      $attacker->round_of_attacks($armies, $game, $attacker, $defender);
-    } elseif($num >= 10) {
-      $attacker->round_of_attacks($armies, $game, $attacker, $defender);
+  } else {
+    // Get Game
+    $game->get();
+
+    // Get all armies for a game
+    $armies = $armyInstance->get_all($game->id);
+    $num = $armies->rowCount();
+
+    // Start game if conditions are met
+    if($num > 0) {
+      // There can be less than 10 armies if the game is in progress or finished
+      if($num < 3 && $game->game_status == 'in progress') {
+        $attacker->round_of_attacks($armies, $game, $attacker, $defender);
+      } elseif($num >= 3) {
+        $attacker->round_of_attacks($armies, $game, $attacker, $defender);
+      } else {
+        echo json_encode(
+          array('message' =>  'Not enough armies to start the battle. There must be a minimum of 10 armies!')
+        );
+      }
     } else {
       echo json_encode(
-        array('message' =>  'Not enough armies to start the battle. There must be a minimum of 10 armies!')
+        array('message' =>  'No armies in the game!')
       );
     }
-  } else {
-    echo json_encode(
-      array('message' =>  'No armies in the game!')
-    );
   }
-  
 ?>

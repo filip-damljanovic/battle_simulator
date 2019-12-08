@@ -205,6 +205,8 @@ $(document).ready(function () {
       ContentType: "application/json",
 
       success: function (response) {
+        
+        $('#game_id_1')[0].value = $('#game_id_3')[0].value;
         var $id = $('#game_id_1')[0].value;
 
         var req;

@@ -94,6 +94,13 @@
       background-color: brown;
       color: white;
     }
+    #title {
+      font-size: 48px;
+      color: #eee;
+      text-align: center;
+      font-style: italic;
+      text-shadow: 3px 3px brown;
+    }
     ::placeholder {
       color: brown;
       font-style: italic;
@@ -109,6 +116,8 @@
   </style>
 </head>
 <body>
+
+<h1 id="title">Battle Simulator</h1>
 
 <div style="display: flex; justify-content: space-around;" class="container">
   <div style="width:50%;" class="post">
