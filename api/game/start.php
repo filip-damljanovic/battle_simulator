@@ -37,9 +37,26 @@
     // Start game if conditions are met
     if($num > 0) {
       // There can be less than 10 armies if the game is in progress or finished
-      if($num < 3 && $game->game_status == 'in progress') {
+      if($num < 10 && $game->game_status == 'in progress') {
+        // Run round of attacks
         $attacker->round_of_attacks($armies, $game, $attacker, $defender);
-      } elseif($num >= 3) {
+      } elseif($num >= 10 && $game->game_status == 'finished') {
+        // Chek if armies have between 80 and 100 units
+        foreach($armies as $key => $army) {
+          if($army['units'] < 80) {
+            // Set random units between 80 and 100 for armies that have less
+            $armyInstance->set_random_units($army['id']);
+          }
+        }
+        // Start the game
+        $status = 'in progress';
+        $game->update_game_status($status);
+
+        echo json_encode(
+          array('message' =>  'Armies set! Start running attacks!')
+        );
+      } elseif($num >= 10) {
+        // Run round of attacks
         $attacker->round_of_attacks($armies, $game, $attacker, $defender);
       } else {
         echo json_encode(
@@ -52,4 +69,5 @@
       );
     }
   }
+
 ?>

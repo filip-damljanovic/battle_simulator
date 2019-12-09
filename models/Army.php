@@ -46,6 +46,34 @@
       }
     }
 
+    // Set random units for an army
+    public function set_random_units($id) {
+      // Create query
+      $query = 'UPDATE ' . $this->table . '
+                            SET
+                              units = :rand_units
+                            WHERE
+                              id = :id';
+      
+      // Prepare statement
+      $stmt = $this->conn->prepare($query);
+
+      $rand_units = rand(80, 100);
+
+      // Clean data
+      $game_id = htmlspecialchars(strip_tags($id));
+      $rand_units = htmlspecialchars(strip_tags($rand_units));
+
+      // Bind data
+      $stmt->bindParam(':id', $id);
+      $stmt->bindParam(':rand_units', $rand_units);
+
+      // Execute query
+      $stmt->execute();
+
+      return $stmt;
+    }
+
     // Get Army with min ID for a game
     public function get_min_id_army($game_id) {
        // Create query
